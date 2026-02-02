@@ -42,4 +42,108 @@
         <div class="card">
             <input type="text" id="logTitle" placeholder="Project / အလုပ်အမည်">
             <textarea id="logDetail" placeholder="အသေးစိတ်မှတ်ချက်..."></textarea>
-            <button class="btn" onclick="saveData
+            <button class="btn" onclick="saveData('logs', ['logTitle', 'logDetail'])">Save Record</button>
+        </div>
+        <div id="logList"></div>
+    </div>
+
+    <div id="schedule" class="hidden">
+        <h3>📅 အလုပ်အစီအစဉ် (Planning)</h3>
+        <div class="card">
+            <input type="date" id="planDate">
+            <input type="text" id="planTask" placeholder="လုပ်ဆောင်ရမည့်အလုပ်">
+            <button class="btn" onclick="saveData('plans', ['planDate', 'planTask'])">Add to Schedule</button>
+        </div>
+        <div id="planList"></div>
+    </div>
+
+    <div id="inventory" class="hidden">
+        <h3>💰 ပစ္စည်းစာရင်းနှင့် Budget</h3>
+        <div class="card">
+            <input type="text" id="matName" placeholder="ပစ္စည်းအမည်">
+            <input type="number" id="matQty" placeholder="အရေအတွက်">
+            <input type="number" id="matPrice" placeholder="ဈေးနှုန်း (Unit Price)">
+            <button class="btn" onclick="saveData('mats', ['matName', 'matQty', 'matPrice'])">Update List</button>
+            <div class="total-box">စုစုပေါင်း: <span id="grandTotal">0</span> ကျပ်</div>
+        </div>
+        <div id="matList"></div>
+    </div>
+
+    <div id="calc" class="hidden">
+        <h3>⚡ Quick Calculators</h3>
+        <div class="card">
+            <h4>Watts to Amps (230V)</h4>
+            <input type="number" id="watts" placeholder="Power (Watts)" oninput="document.getElementById('resA').innerText = (this.value/230).toFixed(2)">
+            <p>Result: <b id="resA" style="color:var(--primary)">0</b> Amps</p>
+        </div>
+    </div>
+
+    <div id="ref" class="hidden">
+        <h3>📚 Cable Ampacity Reference (Cu/PVC)</h3>
+        <div class="card" style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr><th>Size (mm²)</th><th>Single Core (A)</th><th>Multicore (A)</th></tr>
+                </thead>
+                <tbody id="cableTable"></tbody>
+            </table>
+            <p style="font-size: 11px; color: #888; margin-top: 10px;">* Reference: Ambient 30°C in Conduit.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showTab(id) {
+        ['daily', 'schedule', 'inventory', 'calc', 'ref'].forEach(t => document.getElementById(t).classList.add('hidden'));
+        document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.remove('hidden');
+        event.currentTarget.classList.add('active');
+        renderAll();
+    }
+
+    function saveData(key, inputs) {
+        let data = JSON.parse(localStorage.getItem(key) || '[]');
+        let entry = { id: Date.now(), time: new Date().toLocaleDateString() };
+        inputs.forEach(id => { entry[id] = document.getElementById(id).value; document.getElementById(id).value = ''; });
+        data.unshift(entry);
+        localStorage.setItem(key, JSON.stringify(data));
+        renderAll();
+    }
+
+    function deleteItem(key, id) {
+        if(confirm("ဖျက်ရန် သေချာပါသလား?")) {
+            let data = JSON.parse(localStorage.getItem(key)).filter(i => i.id !== id);
+            localStorage.setItem(key, JSON.stringify(data));
+            renderAll();
+        }
+    }
+
+    function renderAll() {
+        document.getElementById('logList').innerHTML = JSON.parse(localStorage.getItem('logs') || '[]').map(l => `
+            <div class="list-item"><span class="delete-btn" onclick="deleteItem('logs', ${l.id})">×</span><b>${l.logTitle}</b> (${l.time})<p>${l.logDetail}</p></div>`).join('');
+        
+        document.getElementById('planList').innerHTML = JSON.parse(localStorage.getItem('plans') || '[]').map(p => `
+            <div class="list-item"><span class="delete-btn" onclick="deleteItem('plans', ${p.id})">×</span>📅 <b>${p.planDate}</b>: ${p.planTask}</div>`).join('');
+
+        let total = 0;
+        document.getElementById('matList').innerHTML = JSON.parse(localStorage.getItem('mats') || '[]').map(m => {
+            let sub = Number(m.matQty) * Number(m.matPrice);
+            total += sub;
+            return `<div class="list-item"><span class="delete-btn" onclick="deleteItem('mats', ${m.id})">×</span>📦 <b>${m.matName}</b>: ${m.matQty} x ${m.matPrice} = <b>${sub.toLocaleString()}</b> ကျပ်</div>`;
+        }).join('');
+        document.getElementById('grandTotal').innerText = total.toLocaleString();
+    }
+
+    function loadCableData() {
+        const cables = [
+            ["1.5", 17.5, 15.5], ["2.5", 24, 21], ["4", 32, 28], ["6", 41, 36], ["10", 57, 50],
+            ["16", 76, 68], ["25", 101, 89], ["35", 125, 110], ["50", 151, 134], ["70", 192, 171],
+            ["95", 232, 207], ["120", 269, 239], ["150", 309, 275], ["185", 353, 314], ["240", 415, 370]
+        ];
+        document.getElementById('cableTable').innerHTML = cables.map(c => `<tr><td>${c[0]}</td><td>${c[1]}</td><td>${c[2]}</td></tr>`).join('');
+    }
+
+    window.onload = () => { loadCableData(); renderAll(); };
+</script>
+</body>
+</html>
