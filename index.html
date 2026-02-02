@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrical Pro Tool (Inspection & Fault Finding)</title>
+    <style>
+        :root {
+            --primary: #f1c40f;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #e0e0e0;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text);
+            margin: 0;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            background: #2c3e50;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: space-around;
+            background: #34495e;
+            padding: 10px 0;
+        }
+
+        .nav-tabs button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            padding: 10px;
+            cursor: pointer;
+            width: 33%;
+        }
+
+        .nav-tabs button.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            font-weight: bold;
+        }
+
+        .container { padding: 15px; max-width: 800px; margin: auto; }
+
+        /* Search Box */
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #2c3e50;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        /* Card Style */
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .card h3 { color: var(--primary); margin-top: 0; font-size: 18px; }
+        .solution { color: var(--success); font-weight: bold; margin-top: 10px; }
+        .cause { color: #bdc3c7; font-style: italic; }
+
+        /* Checklist Style */
+        .check-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .check-item input { margin-right: 15px; transform: scale(1.3); }
+
+        /* Note Section */
+        .note-area {
+            width: 100%;
+            height: 150px;
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-save {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: #3498db;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            float: right;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>ELECTRICAL EXPERT TOOL</h2>
+</div>
+
+<div class="nav-tabs">
+    <button id="tab1" class="active" onclick="showTab('faults')">Fault Finder</button>
+    <button id="tab2" onclick="showTab('inspect')">Site Inspection</button>
+    <button id="tab3" onclick="showTab('notes')">Field Notes</button>
+</div>
+
+<div class="container">
+
+    <div id="faults-section">
+        <input type="text" id="faultSearch" class="search-box" placeholder="ပြဿနာအမည်ဖြင့် ရှာဖွေပါ... (ဥပမာ- Motor, Breaker, VFD)">
+        <div id="faultList">
+            </div>
+    </div>
+
+    <div id="inspect-section" class="hidden">
+        <h3>Site Inspection Checklists (Chapter-wise)</h3>
+        
+        <div class="card">
+            <h3>Chapter 5: Cable Termination & Glanding</h3>
+            <div class="check-item"><input type="checkbox"> Proper Lug size used?</div>
+            <div class="check-item"><input type="checkbox"> Correct color ferrule marking?</div>
+            <div class="check-item"><input type="checkbox"> Gland tightness verified?</div>
+            <div class="check-item"><input type="checkbox"> No loose connections at terminal?</div>
+        </div>
+
+        <div class="card">
+            <h3>Chapter 9: Earthing & Bonding</h3>
+            <div class="check-item"><input type="checkbox"> Earth resistance < 1 Ohm?</div>
+            <div class="check-item"><input type="checkbox"> Continuity between bond points?</div>
+            <div class="check-item"><input type="checkbox"> Warning labels installed?</div>
+        </div>
+
+        <div class="card">
+            <h3>Rejection Points (Chapter 20)</h3>
+            <p style="color: var(--danger);">⚠️ Burnt terminals/discoloration တွေ့ရှိပါက ငြင်းပယ်ရန်။</p>
+            <p style="color: var(--danger);">⚠️ Wrong lug size သုံးထားပါက ပြန်ပြင်ခိုင်းရန်။</p>
+        </div>
+    </div>
+
+    <div id="notes-section" class="hidden">
+        <h3>Daily Field Record</h3>
+        <p>Site မှာ တွေ့ရတဲ့ fault တွေနဲ့ အချက်အလက်တွေကို မှတ်တမ်းတင်ပါ။</p>
+        <textarea id="noteInput" class="note-area" placeholder="ဥပမာ- DB-1 မှာ loose connection တစ်ခုတွေ့ရှိပြီး ပြန်လည်တင်းကျပ်ခဲ့သည်။"></textarea>
+        <button class="btn-save" onclick="saveNote()">Save Notes</button>
+        <div id="savedNotes" style="margin-top: 20px;"></div>
+    </div>
+
+</div>
+
+<script>
+    // Q&A 200 ထဲမှ အချက်အလက် နမူနာအချို့ (သင်ကိုယ်တိုင် ကျန်တာတွေ ထည့်လို့ရပါတယ်)
+    const faultData = [
+        { id: 1, issue: "Motor လည်သံမြည်ပြီး မလည်ခြင်း (Humming)", cause: "Single phasing ဖြစ်နေခြင်း (သို့) Bearing ချို့ယွင်းခြင်း", solution: "Input Phase ၃ ခုလုံးကို စစ်ဆေးပါ၊ Bearing ကို ချောဆီထည့်ပါ", cat: "Motor" },
+        { id: 2, issue: "Breaker ချက်ချင်း ပြန်ကျခြင်း (Immediate Trip)", cause: "Short circuit (သို့) Ground Fault ဖြစ်နေခြင်း", solution: "Insulation Resistance (IR) Test လုပ်၍ short ဖြစ်သည့်နေရာကို ရှာပါ", cat: "Breaker" },
+        { id: 3, issue: "VFD Overvoltage Fault", cause: "Deceleration time တိုလွန်းခြင်း", solution: "Decel Time (P00.xx) ကို တိုးပေးပါ သို့မဟုတ် Dynamic Braking သုံးပါ", cat: "VFD" },
+        { id: 4, issue: "Transformer မှ 'ဝူး' ဟု အသံကျယ်ကျယ်မြည်ခြင်း", cause: "Input voltage များလွန်းခြင်း သို့မဟုတ် Core mounting loose ဖြစ်ခြင်း", solution: "Input voltage ကို Tap changer ဖြင့် ညှိပါ၊ bolts များ တင်းကျပ်ပါ", cat: "Transformer" },
+        { id: 5, issue: "PLC Input မဝင်ခြင်း", cause: "External supply (24VDC) ပျက်နေခြင်း သို့မဟုတ် Fuse ပြတ်ခြင်း", solution: "Power supply module ကို စစ်ဆေးပါ၊ Fuse ကို အသစ်လဲပါ", cat: "PLC" }
+    ];
+
+    function showTab(tabName) {
+        document.getElementById('faults-section').classList.add('hidden');
+        document.getElementById('inspect-section').classList.add('hidden');
+        document.getElementById('notes-section').classList.add('hidden');
+        document.getElementById(tabName + '-section').classList.remove('hidden');
+
+        document.querySelectorAll('.nav-tabs button').forEach(btn => btn.classList.remove('active'));
+        if(tabName === 'faults') document.getElementById('tab1').classList.add('active');
+        if(tabName === 'inspect') document.getElementById('tab2').classList.add('active');
+        if(tabName === 'notes') document.getElementById('tab3').classList.add('active');
+    }
+
+    function displayFaults(filter = "") {
+        const list = document.getElementById('faultList');
+        list.innerHTML = "";
+        faultData.filter(f => f.issue.toLowerCase().includes(filter.toLowerCase()) || f.cat.toLowerCase().includes(filter.toLowerCase()))
+                 .forEach(f => {
+            list.innerHTML += `
+                <div class="card">
+                    <span class="tag">${f.cat}</span>
+                    <h3>${f.issue}</h3>
+                    <p class="cause"><strong>Root Cause:</strong> ${f.cause}</p>
+                    <p class="solution"><strong>Solution:</strong> ${f.solution}</p>
+                </div>
+            `;
+        });
+    }
+
+    document.getElementById('faultSearch').addEventListener('input', (e) => {
+        displayFaults(e.target.value);
+    });
+
+    function saveNote() {
+        const note = document.getElementById('noteInput').value;
+        if(note) {
+            const date = new Date().toLocaleString();
+            const savedSection = document.getElementById('savedNotes');
+            savedSection.innerHTML = `<div class="card" style="border-left-color: #3498db;">
+                <small>${date}</small><p>${note}</p>
+            </div>` + savedSection.innerHTML;
+            document.getElementById('noteInput').value = "";
+            alert("Note saved to device!");
+        }
+    }
+
+    // Initial Load
+    displayFaults();
+</script>
+
+</body>
+</html>
