@@ -3,70 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Electrical Pro - Mobile Suite</title>
+    <title>Electrical Pro - Manpower Suite</title>
     <style>
-        :root { --primary: #f1c40f; --dark: #121212; --card: #1e1e1e; --text: #eee; --blue: #3498db; --red: #e74c3c; }
-        
+        :root { --primary: #f1c40f; --dark: #121212; --card: #1e1e1e; --text: #eee; --blue: #3498db; --red: #e74c3c; --green: #2ecc71; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--text); margin: 0; padding-bottom: 80px; }
-
-        /* Header */
         .header { background: #000; padding: 15px; text-align: center; border-bottom: 3px solid var(--primary); }
-
-        /* Mobile Navigation - Scrollable & No Overlap */
-        .nav-container {
-            background: #222;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            overflow-x: auto; /* ဖုန်းမှာ ဘေးတိုက်ရွှေ့လို့ရအောင် */
-            white-space: nowrap; /* စာသားတွေကို တစ်ကြောင်းတည်းဖြစ်အောင် */
-            -webkit-overflow-scrolling: touch;
-            border-bottom: 1px solid #444;
-        }
-
-        .nav-container::-webkit-scrollbar { display: none; } /* Scrollbar ဖျောက်ထားမယ် */
-
-        .nav-container button {
-            display: inline-block;
-            padding: 15px 20px;
-            border: none;
-            background: none;
-            color: #bbb;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .nav-container button.active {
-            color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-        }
+        
+        /* Mobile Nav */
+        .nav-container { background: #222; position: sticky; top: 0; z-index: 1000; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; border-bottom: 1px solid #444; }
+        .nav-container::-webkit-scrollbar { display: none; }
+        .nav-container button { display: inline-block; padding: 15px 20px; border: none; background: none; color: #bbb; cursor: pointer; font-size: 14px; font-weight: bold; }
+        .nav-container button.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
 
         .container { padding: 15px; max-width: 800px; margin: auto; }
-
-        /* Card Designs */
         .card { background: var(--card); padding: 18px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         
-        input, textarea, select { 
-            width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; 
-            border: 1px solid #444; background: #2c3e50; color: white; box-sizing: border-box; 
-        }
-
-        .btn { background: var(--primary); color: black; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; margin-top: 5px; }
-
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #444; background: #2c3e50; color: white; box-sizing: border-box; }
+        .btn { background: var(--primary); color: black; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; margin-top: 5px; cursor: pointer; }
+        
         .list-item { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid var(--primary); position: relative; }
-        .delete-btn { position: absolute; right: 10px; top: 10px; color: var(--red); font-size: 20px; font-weight: bold; cursor: pointer; }
-
-        /* Table Styling */
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 300px; }
-        th, td { border: 1px solid #444; padding: 12px 8px; text-align: center; font-size: 14px; }
-        th { background: #333; color: var(--primary); }
+        .delete-btn { position: absolute; right: 10px; top: 10px; color: var(--red); font-weight: bold; cursor: pointer; }
 
         .hidden { display: none; }
-        .total-box { font-size: 18px; text-align: right; color: var(--primary); margin-top: 10px; font-weight: bold; }
-        .search-mini { background: #121212; border: 1px solid var(--primary); margin-bottom: 10px; }
+        .badge { background: var(--blue); padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+        .total-manpower { font-size: 18px; color: var(--green); margin-top: 10px; font-weight: bold; text-align: center; border-top: 1px solid #444; padding-top: 10px; }
     </style>
 </head>
 <body>
@@ -77,16 +37,17 @@
     <button id="b1" class="active" onclick="showTab('daily')">Daily Logs</button>
     <button id="b2" onclick="showTab('schedule')">Schedules</button>
     <button id="b3" onclick="showTab('inventory')">Budgeting</button>
-    <button id="b4" onclick="showTab('calc')">Calculator</button>
+    <button id="b4" onclick="showTab('calc')">Calculators</button>
     <button id="b5" onclick="showTab('ref')">Cable Ref</button>
 </div>
 
 <div class="container">
+    
     <div id="daily">
-        <h3>📝 Daily Logs</h3>
+        <h3>📝 Daily Work Logs</h3>
         <div class="card">
-            <input type="text" id="logTitle" placeholder="Work Title (e.g. DB Dressing)">
-            <textarea id="logDetail" placeholder="Details..."></textarea>
+            <input type="text" id="logTitle" placeholder="Project Title">
+            <textarea id="logDetail" placeholder="Work Details..."></textarea>
             <button class="btn" onclick="saveData('logs', ['logTitle', 'logDetail'])">Save Log</button>
         </div>
         <div id="logList"></div>
@@ -107,33 +68,50 @@
         <div class="card">
             <input type="text" id="matName" placeholder="Item Name">
             <input type="number" id="matQty" placeholder="Quantity">
-            <input type="number" id="matPrice" placeholder="Price per unit">
+            <input type="number" id="matPrice" placeholder="Unit Price">
             <button class="btn" onclick="saveData('mats', ['matName', 'matQty', 'matPrice'])">Update Budget</button>
-            <div class="total-box">Total: <span id="grandTotal">0</span> Ks</div>
+            <p style="text-align:right">Total: <span id="grandTotal">0</span> Ks</p>
         </div>
         <div id="matList"></div>
     </div>
 
     <div id="calc" class="hidden">
-        <h3>⚡ Quick Calc (230V)</h3>
+        <h3>⚡ Quick Calculator</h3>
         <div class="card">
-            <input type="number" id="watts" placeholder="Enter Watts (W)" oninput="document.getElementById('resA').innerText = (this.value/230).toFixed(2)">
-            <p style="text-align:center; font-size: 20px;">Current: <b id="resA" style="color:var(--primary)">0</b> Amps</p>
+            <label>Watts to Amps (230V)</label>
+            <input type="number" id="watts" placeholder="Enter Watts" oninput="document.getElementById('resA').innerText = (this.value/230).toFixed(2)">
+            <p>Current: <b id="resA" style="color:var(--primary)">0</b> A</p>
+        </div>
+
+        <h3>👥 Human Power (Daily Attendance)</h3>
+        <div class="card">
+            <select id="hpRole">
+                <option value="Project Engineer">Project Engineer</option>
+                <option value="Site Engineer">Site Engineer</option>
+                <option value="Design Engineer">Design Engineer</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Skill Labor">Skill Labor</option>
+                <option value="General Labor">General Labor</option>
+                <option value="Other Team">Other Team</option>
+            </select>
+            <input type="number" id="hpCount" placeholder="Number of Persons">
+            <input type="text" id="hpNote" placeholder="Team Name / Note">
+            <button class="btn" style="background:var(--blue); color:white" onclick="saveData('manpower', ['hpRole', 'hpCount', 'hpNote'])">Add Attendance</button>
+            <div id="manpowerList" style="margin-top:15px"></div>
+            <div class="total-manpower">Daily Total: <span id="totalHP">0</span> Persons</div>
         </div>
     </div>
 
     <div id="ref" class="hidden">
         <h3>📚 Cable Ampacity</h3>
-        <input type="text" id="cableSearch" class="search-mini" placeholder="Size ရှာရန်... (e.g. 10)" oninput="filterCable()">
-        <div class="table-responsive">
-            <table id="cableTableMain">
-                <thead>
-                    <tr><th>Size (mm²)</th><th>1 Core (A)</th><th>Multi (A)</th></tr>
-                </thead>
+        <div class="card" style="overflow-x:auto">
+            <table style="width:100%; border-collapse: collapse;">
+                <tr style="color:var(--primary)"><th>Size</th><th>1C(A)</th><th>MC(A)</th></tr>
                 <tbody id="cableTableBody"></tbody>
             </table>
         </div>
     </div>
+
 </div>
 
 <script>
@@ -155,7 +133,7 @@
     }
 
     function deleteItem(key, id) {
-        if(confirm("ဖျက်ရန် သေချာပါသလား?")) {
+        if(confirm("Confirm Delete?")) {
             let data = JSON.parse(localStorage.getItem(key)).filter(i => i.id !== id);
             localStorage.setItem(key, JSON.stringify(data));
             renderAll();
@@ -163,38 +141,35 @@
     }
 
     function renderAll() {
+        // Daily Logs
         document.getElementById('logList').innerHTML = JSON.parse(localStorage.getItem('logs') || '[]').map(l => `
-            <div class="list-item"><span class="delete-btn" onclick="deleteItem('logs', ${l.id})">×</span><b>${l.logTitle}</b><br><small>${l.time}</small><p>${l.logDetail}</p></div>`).join('');
+            <div class="list-item"><span class="delete-btn" onclick="deleteItem('logs', ${l.id})">×</span><b>${l.logTitle}</b><p>${l.logDetail}</p></div>`).join('');
         
-        document.getElementById('planList').innerHTML = JSON.parse(localStorage.getItem('plans') || '[]').map(p => `
-            <div class="list-item"><span class="delete-btn" onclick="deleteItem('plans', ${p.id})">×</span>📅 <b>${p.planDate}</b>: ${p.planTask}</div>`).join('');
+        // Manpower (Human Power)
+        let hpTotal = 0;
+        document.getElementById('manpowerList').innerHTML = JSON.parse(localStorage.getItem('manpower') || '[]').map(m => {
+            hpTotal += Number(m.hpCount);
+            return `<div class="list-item" style="border-left-color:var(--blue)">
+                <span class="delete-btn" onclick="deleteItem('manpower', ${m.id})">×</span>
+                <span class="badge">${m.hpRole}</span> <b>${m.hpCount} Pax</b><br><small>${m.hpNote}</small>
+            </div>`;
+        }).join('');
+        document.getElementById('totalHP').innerText = hpTotal;
 
+        // Inventory
         let total = 0;
         document.getElementById('matList').innerHTML = JSON.parse(localStorage.getItem('mats') || '[]').map(m => {
-            let sub = Number(m.matQty) * Number(m.matPrice);
-            total += sub;
-            return `<div class="list-item"><span class="delete-btn" onclick="deleteItem('mats', ${m.id})">×</span>📦 <b>${m.matName}</b>: ${m.matQty} x ${m.matPrice} = <b>${sub.toLocaleString()}</b> Ks</div>`;
+            let sub = m.matQty * m.matPrice; total += sub;
+            return `<div class="list-item"><span class="delete-btn" onclick="deleteItem('mats', ${m.id})">×</span><b>${m.matName}</b>: ${m.matQty} x ${m.matPrice}</div>`;
         }).join('');
         document.getElementById('grandTotal').innerText = total.toLocaleString();
     }
 
-    const cableData = [
-        ["1.5", 17.5, 15.5], ["2.5", 24, 21], ["4", 32, 28], ["6", 41, 36], ["10", 57, 50],
-        ["16", 76, 68], ["25", 101, 89], ["35", 125, 110], ["50", 151, 134], ["70", 192, 171],
-        ["95", 232, 207], ["120", 269, 239], ["150", 309, 275], ["185", 353, 314], ["240", 415, 370]
-    ];
-
-    function loadCableData(filter = "") {
-        document.getElementById('cableTableBody').innerHTML = cableData
-            .filter(c => c[0].includes(filter))
-            .map(c => `<tr><td>${c[0]}</td><td>${c[1]}</td><td>${c[2]}</td></tr>`).join('');
-    }
-
-    function filterCable() {
-        loadCableData(document.getElementById('cableSearch').value);
-    }
-
-    window.onload = () => { loadCableData(); renderAll(); };
+    const cables = [["1.5",17.5,15.5],["2.5",24,21],["4",32,28],["6",41,36],["10",57,50],["16",76,68],["25",101,89],["35",125,110]];
+    window.onload = () => {
+        document.getElementById('cableTableBody').innerHTML = cables.map(c => `<tr><td style="border:1px solid #444;padding:8px">${c[0]}</td><td style="border:1px solid #444">${c[1]}</td><td style="border:1px solid #444">${c[2]}</td></tr>`).join('');
+        renderAll();
+    };
 </script>
 </body>
 </html>
