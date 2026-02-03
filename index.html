@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Electrical Pro - Site Manager</title>
+    <title>Electrical Pro - Site Manager V4</title>
     <style>
         :root { --primary: #f1c40f; --dark: #121212; --card: #1e1e1e; --text: #eee; --blue: #3498db; --red: #e74c3c; --green: #2ecc71; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--text); margin: 0; padding-bottom: 80px; }
@@ -58,7 +58,7 @@
         <h3>📅 Site Planning</h3>
         <div class="card">
             <input type="date" id="planDate">
-            <input type="text" id="planTask" placeholder="Task to do (e.g. Pulling Cable)">
+            <input type="text" id="planTask" placeholder="Task to do">
             <button class="btn" onclick="saveData('plans', ['planDate', 'planTask'])">Add to Schedule</button>
         </div>
         <div id="planList"></div>
@@ -67,16 +67,17 @@
     <div id="inventory" class="hidden">
         <h3>💰 Budget & Materials</h3>
         <div class="card">
+            <input type="date" id="matDate">
             <input type="text" id="matName" placeholder="Item Name">
             <input type="number" id="matQty" placeholder="Quantity">
             <input type="number" id="matPrice" placeholder="Unit Price">
-            <button class="btn" onclick="saveData('mats', ['matName', 'matQty', 'matPrice'])">Update Budget</button>
-            <p style="text-align:right">Total: <span id="grandTotal">0</span> Ks</p>
+            <button class="btn" onclick="saveData('mats', ['matDate', 'matName', 'matQty', 'matPrice'])">Save Expense</button>
+            <p style="text-align:right; font-weight: bold; color: var(--primary);">Total: <span id="grandTotal">0</span> Ks</p>
         </div>
         <div id="matList"></div>
     </div>
 
-    <div id="calc">
+    <div id="calc" class="hidden">
         <div id="manpower-section">
             <h3>👥 Human Power (Attendance)</h3>
             <div class="card">
@@ -93,7 +94,7 @@
                 <input type="text" id="hpNote" placeholder="Team Name / Note">
                 <button class="btn" style="background:var(--blue); color:white" onclick="saveData('manpower', ['hpDate', 'hpRole', 'hpCount', 'hpNote'])">Add Attendance</button>
                 <div id="manpowerList" style="margin-top:15px"></div>
-                <div class="total-manpower">Today's Total: <span id="totalHP">0</span> Pax</div>
+                <div class="total-manpower">Today's Total: <span id="totalHP">0</span> Persons</div>
             </div>
         </div>
 
@@ -125,7 +126,6 @@
         renderAll();
     }
 
-    // Today's date setter for inputs
     function setToday(id) {
         const today = new Date().toISOString().split('T')[0];
         if(document.getElementById(id)) document.getElementById(id).value = today;
@@ -142,12 +142,11 @@
             entry[id] = val;
         });
 
-        if(!allFilled) { alert("ကျေးဇူးပြု၍ အကွက်အားလုံးဖြည့်ပါ"); return; }
+        if(!allFilled) { alert("Please fill all fields!"); return; }
 
         data.unshift(entry);
         localStorage.setItem(key, JSON.stringify(data));
         
-        // Clear text inputs but keep dates for convenience
         inputs.forEach(id => {
             if(document.getElementById(id).type !== 'date') document.getElementById(id).value = '';
         });
@@ -164,18 +163,18 @@
     }
 
     function renderAll() {
-        // Daily Logs Render
+        // Daily Logs
         document.getElementById('logList').innerHTML = JSON.parse(localStorage.getItem('logs') || '[]').map(l => `
             <div class="list-item"><span class="delete-btn" onclick="deleteItem('logs', ${l.id})">×</span>
             <div class="date-badge">${l.logDate}</div><br><b>${l.logTitle}</b><p>${l.logDetail}</p></div>`).join('');
         
-        // Schedule Render
+        // Schedule
         document.getElementById('planList').innerHTML = JSON.parse(localStorage.getItem('plans') || '[]').map(p => `
             <div class="list-item" style="border-left-color:var(--green)">
             <span class="delete-btn" onclick="deleteItem('plans', ${p.id})">×</span>
             <div class="date-badge">${p.planDate}</div><br><b>${p.planTask}</b></div>`).join('');
 
-        // Manpower Render
+        // Manpower Render (Updated to Persons)
         let hpTotal = 0;
         const todayStr = new Date().toISOString().split('T')[0];
         document.getElementById('manpowerList').innerHTML = JSON.parse(localStorage.getItem('manpower') || '[]').map(m => {
@@ -183,17 +182,18 @@
             return `<div class="list-item" style="border-left-color:var(--blue)">
                 <span class="delete-btn" onclick="deleteItem('manpower', ${m.id})">×</span>
                 <div class="date-badge">${m.hpDate}</div><br>
-                <span class="role-badge">${m.hpRole}</span> <b>${m.hpCount} Pax</b><br><small>${m.hpNote}</small>
+                <span class="role-badge">${m.hpRole}</span> <b>${m.hpCount} Persons</b><br><small>${m.hpNote}</small>
             </div>`;
         }).join('');
         document.getElementById('totalHP').innerText = hpTotal;
 
-        // Inventory Render
+        // Inventory Render (With Date)
         let total = 0;
         document.getElementById('matList').innerHTML = JSON.parse(localStorage.getItem('mats') || '[]').map(m => {
             let sub = m.matQty * m.matPrice; total += sub;
             return `<div class="list-item">
             <span class="delete-btn" onclick="deleteItem('mats', ${m.id})">×</span>
+            <div class="date-badge">${m.matDate}</div><br>
             <b>${m.matName}</b>: ${m.matQty} x ${m.matPrice} = ${sub.toLocaleString()} Ks</div>`;
         }).join('');
         document.getElementById('grandTotal').innerText = total.toLocaleString();
@@ -202,9 +202,7 @@
     const cables = [["1.5",17.5,15.5],["2.5",24,21],["4",32,28],["6",41,36],["10",57,50],["16",76,68],["25",101,89],["35",125,110]];
     
     window.onload = () => {
-        setToday('logDate');
-        setToday('planDate');
-        setToday('hpDate');
+        ['logDate', 'planDate', 'hpDate', 'matDate'].forEach(setToday);
         document.getElementById('cableTableBody').innerHTML = cables.map(c => 
             `<tr><td style="border:1px solid #444;padding:10px">${c[0]}</td><td style="border:1px solid #444">${c[1]}</td><td style="border:1px solid #444">${c[2]}</td></tr>`).join('');
         renderAll();
