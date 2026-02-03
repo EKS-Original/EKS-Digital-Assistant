@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Electrical Pro - Manpower Suite</title>
+    <title>Electrical Pro - Site Manager</title>
     <style>
         :root { --primary: #f1c40f; --dark: #121212; --card: #1e1e1e; --text: #eee; --blue: #3498db; --red: #e74c3c; --green: #2ecc71; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--text); margin: 0; padding-bottom: 80px; }
         .header { background: #000; padding: 15px; text-align: center; border-bottom: 3px solid var(--primary); }
         
-        /* Mobile Nav */
         .nav-container { background: #222; position: sticky; top: 0; z-index: 1000; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; border-bottom: 1px solid #444; }
         .nav-container::-webkit-scrollbar { display: none; }
         .nav-container button { display: inline-block; padding: 15px 20px; border: none; background: none; color: #bbb; cursor: pointer; font-size: 14px; font-weight: bold; }
@@ -18,14 +17,15 @@
         .container { padding: 15px; max-width: 800px; margin: auto; }
         .card { background: var(--card); padding: 18px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #444; background: #2c3e50; color: white; box-sizing: border-box; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #444; background: #2c3e50; color: white; box-sizing: border-box; font-size: 16px; }
         .btn { background: var(--primary); color: black; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; margin-top: 5px; cursor: pointer; }
         
         .list-item { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid var(--primary); position: relative; }
-        .delete-btn { position: absolute; right: 10px; top: 10px; color: var(--red); font-weight: bold; cursor: pointer; }
-
+        .delete-btn { position: absolute; right: 10px; top: 10px; color: var(--red); font-weight: bold; cursor: pointer; padding: 5px; }
+        
+        .date-badge { background: #444; padding: 2px 6px; border-radius: 4px; font-size: 11px; color: var(--primary); margin-bottom: 5px; display: inline-block; }
+        .role-badge { background: var(--blue); padding: 2px 8px; border-radius: 4px; font-size: 12px; }
         .hidden { display: none; }
-        .badge { background: var(--blue); padding: 2px 8px; border-radius: 4px; font-size: 12px; }
         .total-manpower { font-size: 18px; color: var(--green); margin-top: 10px; font-weight: bold; text-align: center; border-top: 1px solid #444; padding-top: 10px; }
     </style>
 </head>
@@ -37,7 +37,7 @@
     <button id="b1" class="active" onclick="showTab('daily')">Daily Logs</button>
     <button id="b2" onclick="showTab('schedule')">Schedules</button>
     <button id="b3" onclick="showTab('inventory')">Budgeting</button>
-    <button id="b4" onclick="showTab('calc')">Calculators</button>
+    <button id="b4" onclick="showTab('calc')">Manpower/Calc</button>
     <button id="b5" onclick="showTab('ref')">Cable Ref</button>
 </div>
 
@@ -46,19 +46,20 @@
     <div id="daily">
         <h3>📝 Daily Work Logs</h3>
         <div class="card">
+            <input type="date" id="logDate">
             <input type="text" id="logTitle" placeholder="Project Title">
             <textarea id="logDetail" placeholder="Work Details..."></textarea>
-            <button class="btn" onclick="saveData('logs', ['logTitle', 'logDetail'])">Save Log</button>
+            <button class="btn" onclick="saveData('logs', ['logDate', 'logTitle', 'logDetail'])">Save Log</button>
         </div>
         <div id="logList"></div>
     </div>
 
     <div id="schedule" class="hidden">
-        <h3>📅 Planning</h3>
+        <h3>📅 Site Planning</h3>
         <div class="card">
             <input type="date" id="planDate">
-            <input type="text" id="planTask" placeholder="Task to do">
-            <button class="btn" onclick="saveData('plans', ['planDate', 'planTask'])">Add Plan</button>
+            <input type="text" id="planTask" placeholder="Task to do (e.g. Pulling Cable)">
+            <button class="btn" onclick="saveData('plans', ['planDate', 'planTask'])">Add to Schedule</button>
         </div>
         <div id="planList"></div>
     </div>
@@ -75,37 +76,38 @@
         <div id="matList"></div>
     </div>
 
-    <div id="calc" class="hidden">
-        <h3>⚡ Quick Calculator</h3>
-        <div class="card">
-            <label>Watts to Amps (230V)</label>
-            <input type="number" id="watts" placeholder="Enter Watts" oninput="document.getElementById('resA').innerText = (this.value/230).toFixed(2)">
-            <p>Current: <b id="resA" style="color:var(--primary)">0</b> A</p>
+    <div id="calc">
+        <div id="manpower-section">
+            <h3>👥 Human Power (Attendance)</h3>
+            <div class="card">
+                <input type="date" id="hpDate">
+                <select id="hpRole">
+                    <option value="Project Engineer">Project Engineer</option>
+                    <option value="Site Engineer">Site Engineer</option>
+                    <option value="Design Engineer">Design Engineer</option>
+                    <option value="Supervisor">Supervisor</option>
+                    <option value="Skill Labor">Skill Labor</option>
+                    <option value="General Labor">General Labor</option>
+                </select>
+                <input type="number" id="hpCount" placeholder="Number of Persons">
+                <input type="text" id="hpNote" placeholder="Team Name / Note">
+                <button class="btn" style="background:var(--blue); color:white" onclick="saveData('manpower', ['hpDate', 'hpRole', 'hpCount', 'hpNote'])">Add Attendance</button>
+                <div id="manpowerList" style="margin-top:15px"></div>
+                <div class="total-manpower">Today's Total: <span id="totalHP">0</span> Pax</div>
+            </div>
         </div>
 
-        <h3>👥 Human Power (Daily Attendance)</h3>
+        <h3>⚡ Quick Calc (230V)</h3>
         <div class="card">
-            <select id="hpRole">
-                <option value="Project Engineer">Project Engineer</option>
-                <option value="Site Engineer">Site Engineer</option>
-                <option value="Design Engineer">Design Engineer</option>
-                <option value="Supervisor">Supervisor</option>
-                <option value="Skill Labor">Skill Labor</option>
-                <option value="General Labor">General Labor</option>
-                <option value="Other Team">Other Team</option>
-            </select>
-            <input type="number" id="hpCount" placeholder="Number of Persons">
-            <input type="text" id="hpNote" placeholder="Team Name / Note">
-            <button class="btn" style="background:var(--blue); color:white" onclick="saveData('manpower', ['hpRole', 'hpCount', 'hpNote'])">Add Attendance</button>
-            <div id="manpowerList" style="margin-top:15px"></div>
-            <div class="total-manpower">Daily Total: <span id="totalHP">0</span> Persons</div>
+            <input type="number" id="watts" placeholder="Enter Watts" oninput="document.getElementById('resA').innerText = (this.value/230).toFixed(2)">
+            <p>Current: <b id="resA" style="color:var(--primary)">0</b> A</p>
         </div>
     </div>
 
     <div id="ref" class="hidden">
         <h3>📚 Cable Ampacity</h3>
         <div class="card" style="overflow-x:auto">
-            <table style="width:100%; border-collapse: collapse;">
+            <table style="width:100%; border-collapse: collapse; text-align: center;">
                 <tr style="color:var(--primary)"><th>Size</th><th>1C(A)</th><th>MC(A)</th></tr>
                 <tbody id="cableTableBody"></tbody>
             </table>
@@ -123,12 +125,33 @@
         renderAll();
     }
 
+    // Today's date setter for inputs
+    function setToday(id) {
+        const today = new Date().toISOString().split('T')[0];
+        if(document.getElementById(id)) document.getElementById(id).value = today;
+    }
+
     function saveData(key, inputs) {
         let data = JSON.parse(localStorage.getItem(key) || '[]');
-        let entry = { id: Date.now(), time: new Date().toLocaleDateString() };
-        inputs.forEach(id => { entry[id] = document.getElementById(id).value; document.getElementById(id).value = ''; });
+        let entry = { id: Date.now() };
+        let allFilled = true;
+
+        inputs.forEach(id => {
+            let val = document.getElementById(id).value;
+            if(!val) allFilled = false;
+            entry[id] = val;
+        });
+
+        if(!allFilled) { alert("ကျေးဇူးပြု၍ အကွက်အားလုံးဖြည့်ပါ"); return; }
+
         data.unshift(entry);
         localStorage.setItem(key, JSON.stringify(data));
+        
+        // Clear text inputs but keep dates for convenience
+        inputs.forEach(id => {
+            if(document.getElementById(id).type !== 'date') document.getElementById(id).value = '';
+        });
+        
         renderAll();
     }
 
@@ -141,33 +164,49 @@
     }
 
     function renderAll() {
-        // Daily Logs
+        // Daily Logs Render
         document.getElementById('logList').innerHTML = JSON.parse(localStorage.getItem('logs') || '[]').map(l => `
-            <div class="list-item"><span class="delete-btn" onclick="deleteItem('logs', ${l.id})">×</span><b>${l.logTitle}</b><p>${l.logDetail}</p></div>`).join('');
+            <div class="list-item"><span class="delete-btn" onclick="deleteItem('logs', ${l.id})">×</span>
+            <div class="date-badge">${l.logDate}</div><br><b>${l.logTitle}</b><p>${l.logDetail}</p></div>`).join('');
         
-        // Manpower (Human Power)
+        // Schedule Render
+        document.getElementById('planList').innerHTML = JSON.parse(localStorage.getItem('plans') || '[]').map(p => `
+            <div class="list-item" style="border-left-color:var(--green)">
+            <span class="delete-btn" onclick="deleteItem('plans', ${p.id})">×</span>
+            <div class="date-badge">${p.planDate}</div><br><b>${p.planTask}</b></div>`).join('');
+
+        // Manpower Render
         let hpTotal = 0;
+        const todayStr = new Date().toISOString().split('T')[0];
         document.getElementById('manpowerList').innerHTML = JSON.parse(localStorage.getItem('manpower') || '[]').map(m => {
-            hpTotal += Number(m.hpCount);
+            if(m.hpDate === todayStr) hpTotal += Number(m.hpCount);
             return `<div class="list-item" style="border-left-color:var(--blue)">
                 <span class="delete-btn" onclick="deleteItem('manpower', ${m.id})">×</span>
-                <span class="badge">${m.hpRole}</span> <b>${m.hpCount} Pax</b><br><small>${m.hpNote}</small>
+                <div class="date-badge">${m.hpDate}</div><br>
+                <span class="role-badge">${m.hpRole}</span> <b>${m.hpCount} Pax</b><br><small>${m.hpNote}</small>
             </div>`;
         }).join('');
         document.getElementById('totalHP').innerText = hpTotal;
 
-        // Inventory
+        // Inventory Render
         let total = 0;
         document.getElementById('matList').innerHTML = JSON.parse(localStorage.getItem('mats') || '[]').map(m => {
             let sub = m.matQty * m.matPrice; total += sub;
-            return `<div class="list-item"><span class="delete-btn" onclick="deleteItem('mats', ${m.id})">×</span><b>${m.matName}</b>: ${m.matQty} x ${m.matPrice}</div>`;
+            return `<div class="list-item">
+            <span class="delete-btn" onclick="deleteItem('mats', ${m.id})">×</span>
+            <b>${m.matName}</b>: ${m.matQty} x ${m.matPrice} = ${sub.toLocaleString()} Ks</div>`;
         }).join('');
         document.getElementById('grandTotal').innerText = total.toLocaleString();
     }
 
     const cables = [["1.5",17.5,15.5],["2.5",24,21],["4",32,28],["6",41,36],["10",57,50],["16",76,68],["25",101,89],["35",125,110]];
+    
     window.onload = () => {
-        document.getElementById('cableTableBody').innerHTML = cables.map(c => `<tr><td style="border:1px solid #444;padding:8px">${c[0]}</td><td style="border:1px solid #444">${c[1]}</td><td style="border:1px solid #444">${c[2]}</td></tr>`).join('');
+        setToday('logDate');
+        setToday('planDate');
+        setToday('hpDate');
+        document.getElementById('cableTableBody').innerHTML = cables.map(c => 
+            `<tr><td style="border:1px solid #444;padding:10px">${c[0]}</td><td style="border:1px solid #444">${c[1]}</td><td style="border:1px solid #444">${c[2]}</td></tr>`).join('');
         renderAll();
     };
 </script>
